@@ -5,8 +5,7 @@ import { Avatar } from './Avatar';
 import { StarsBackground } from './BackgroundAndAnimations';
 import StandeeUI from './StandeeUI';
 import './index.css';
-
-const WS_URL = 'ws://localhost:8000/ws';
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
 
 function arrayBufferToBase64(buffer) {
   let binary = '';
