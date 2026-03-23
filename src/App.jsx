@@ -80,7 +80,30 @@ function useStandeeLayout() {
     const mqTabL5 = window.matchMedia('(min-width: 1870px) and (max-width: 2060px) and (min-height: 1150px) and (max-height: 1260px) and (orientation: landscape)');
     const mqTabL6 = window.matchMedia('(min-width: 2500px) and (max-width: 2620px) and (min-height: 1550px) and (max-height: 1660px) and (orientation: landscape)');
 
-    const all = [mqStandee, mqExact, mqTabP1, mqTabP2, mqTabP3, mqTabP4, mqTabP5, mqTabL1, mqTabL2, mqTabL3, mqTabL4, mqTabL5, mqTabL6];
+    const mqTabletPortraitGeneric = window.matchMedia(
+      '(hover: none) and (pointer: coarse) and (min-width: 700px) and (max-width: 2200px) and (min-height: 900px) and (max-height: 3000px) and (orientation: portrait)'
+    );
+    const mqTabletLandscapeGeneric = window.matchMedia(
+      '(hover: none) and (pointer: coarse) and (min-width: 900px) and (max-width: 3000px) and (min-height: 600px) and (max-height: 2200px) and (orientation: landscape)'
+    );
+
+    const all = [
+      mqStandee,
+      mqExact,
+      mqTabP1,
+      mqTabP2,
+      mqTabP3,
+      mqTabP4,
+      mqTabP5,
+      mqTabL1,
+      mqTabL2,
+      mqTabL3,
+      mqTabL4,
+      mqTabL5,
+      mqTabL6,
+      mqTabletPortraitGeneric,
+      mqTabletLandscapeGeneric,
+    ];
 
     const update = () => setIsStandee(all.some(mq => mq.matches));
     update();
@@ -932,7 +955,7 @@ function App() {
             />
 
             {/* Send button – compact layout */}
-            {isCompactLayout && (
+            {isCompactLayout && !isStandeeLayout && (
               <div className="chatbot-actions">
                 <button
                   className="send-orb-button"

@@ -341,6 +341,24 @@ html {
    }
  }
 
+ @media (hover: none) and (pointer: coarse) and (min-width: 900px) and (max-width: 3000px) and (min-height: 600px) and (max-height: 2200px) and (orientation: landscape) {
+  .tab-advanced-title {
+    display: none;
+  }
+  .tab-title-small {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 8px;
+  }
+
+  .tab-title-main {
+    font-size: clamp(110px, 12vw, 180px);
+    font-weight: 900;
+    letter-spacing: 14px;
+    margin-top: -10px;
+  }
+ }
+
 .top-icon-btn {
   width: 38px;
   height: 38px;
@@ -1272,11 +1290,11 @@ canvas {
     left: 50%;
     right: auto;
     top: auto;
-    bottom: 20px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%);
     width: min(560px, calc(100vw - 24px));
     height: auto;
-    max-height: 45vh;
+    max-height: min(52vh, 520px);
     border-radius: 0;
     z-index: 13;
     background: transparent !important;
@@ -1287,6 +1305,7 @@ canvas {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    overflow: hidden;
   }
 
   .mode-toggle-container {
@@ -1296,6 +1315,7 @@ canvas {
     transform: translateX(-50%);
     z-index: 20;
     width: auto;
+    display: none;
   }
 
   .chatbot-header,
@@ -1308,14 +1328,20 @@ canvas {
   .chatbot-container {
     padding: 0 10px;
     background: transparent;
+    min-height: 0;
   }
 
   .chat-history {
     gap: 10px;
-    max-height: 40vh;
+    max-height: none;
     overflow-y: auto;
     padding-right: 4px;
     scrollbar-width: thin;
+    min-height: 0;
+  }
+
+  .chatbot-input-area {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .message {
@@ -1354,6 +1380,12 @@ canvas {
   .card-toggle {
     opacity: 1;
     pointer-events: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .left-panel {
+    display: none !important;
   }
 }
 
