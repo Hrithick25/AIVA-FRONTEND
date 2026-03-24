@@ -92,8 +92,7 @@
     transform: translateX(-50%) !important;
     width: calc(100vw - 80px) !important;
     max-width: 980px !important;
-    height: auto !important;
-    max-height: 28vh !important;
+    height: 32vh !important;
     border-radius: 28px !important;
     z-index: 50 !important;
     background:
@@ -111,6 +110,15 @@
 
   .chatbot-container {
     padding: 16px 28px;
+    height: calc(100% - 70px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-history {
+    flex: 1;
+    overflow-y: auto !important;
+    padding-right: 12px;
   }
 
   .message {

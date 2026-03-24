@@ -1410,8 +1410,7 @@ canvas {
     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%);
     width: min(560px, calc(100vw - 24px));
-    height: auto;
-    max-height: min(36vh, 360px);
+    height: 38vh;
     border-radius: 22px;
     z-index: 13;
     background: rgba(10, 6, 26, 0.96) !important;
@@ -1427,11 +1426,16 @@ canvas {
 
   .chatbot-container {
     padding: 14px 14px;
+    height: calc(100% - 60px);
+    display: flex;
+    flex-direction: column;
   }
 
   .chat-history {
     gap: 10px;
     padding-right: 0;
+    flex: 1;
+    overflow-y: auto !important;
   }
 
   .message {

@@ -399,6 +399,7 @@ function App() {
             const responseText = data?.response_text || '';
             if (inputText) setMessages((prev) => [...prev, { role: 'user', text: inputText }]);
             if (responseText) setMessages((prev) => [...prev, { role: 'ai', text: responseText }]);
+            setTranscript('');
             return;
           }
 
@@ -457,6 +458,7 @@ function App() {
             const responseText = data?.response_text || '';
             if (inputText) setMessages((prev) => [...prev, { role: 'user', text: inputText }]);
             if (responseText) setMessages((prev) => [...prev, { role: 'ai', text: responseText }]);
+            setTranscript('');
             const audioBase64 = data?.audio_data;
             if (audioBase64) {
               await playAudioBase64(audioBase64);
