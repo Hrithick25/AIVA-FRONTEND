@@ -163,8 +163,22 @@ function CameraFix() {
   const { camera } = useThree();
 
   useEffect(() => {
-    camera.position.set(0, 0.42, 2.7);   // camera height
-    camera.lookAt(0, 0.42, 0.12);         // look directly at avatar head
+    const mqTabletPortrait = window.matchMedia(
+      '(hover: none) and (pointer: coarse) and (min-width: 700px) and (max-width: 1100px) and (min-height: 900px) and (orientation: portrait)'
+    );
+    const mqTabletLandscape = window.matchMedia(
+      '(hover: none) and (pointer: coarse) and (min-width: 900px) and (max-width: 1600px) and (min-height: 600px) and (orientation: landscape)'
+    );
+
+    const isTabP = mqTabletPortrait.matches;
+    const isTabL = mqTabletLandscape.matches;
+
+    const z = isTabP ? 1.85 : (isTabL ? 2.05 : 2.7);
+    const fov = isTabP ? 28 : (isTabL ? 30 : 36);
+
+    camera.fov = fov;
+    camera.position.set(0, 0.42, z);
+    camera.lookAt(0, 0.42, 0.12);
     camera.updateProjectionMatrix();
   }, [camera]);
 

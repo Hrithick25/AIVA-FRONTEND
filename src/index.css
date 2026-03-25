@@ -921,6 +921,7 @@ canvas {
   -webkit-backdrop-filter: blur(25px);
   box-shadow: 0 0 35px rgba(127, 92, 255, 0.6), inset 0 0 20px rgba(168, 85, 247, 0.2);
   overflow: hidden;
+  min-height: 0;
   opacity: 1 !important;
   visibility: visible !important;
   display: flex !important;
@@ -952,6 +953,7 @@ canvas {
   flex-direction: column;
   padding: 24px 30px;
   overflow: hidden;
+  min-height: 0;
 }
 
  .chatbot-actions {
@@ -968,6 +970,7 @@ canvas {
   flex-direction: column;
   gap: 16px;
   padding-right: 8px;
+  min-height: 0;
 }
 
 .message {

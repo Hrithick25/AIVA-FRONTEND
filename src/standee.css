@@ -495,7 +495,7 @@
      ════════════════════════════════════════════════════════ */
   .standee-wheel-host {
     position: fixed;
-    left: -200px;
+    left: -120px;
     top: 46%;
     transform: translateY(-50%);
     z-index: 46;
@@ -1251,9 +1251,9 @@
     left: 50% !important;
     top: 46% !important;
     transform: translate(-50%, -50%) !important;
-    width: 82vw !important;
-    max-width: 760px !important;
-    height: 68vh !important;
+    width: 88vw !important;
+    max-width: 860px !important;
+    height: 72vh !important;
     z-index: 5 !important;
   }
 
@@ -1554,7 +1554,7 @@
   /* ── Nav Wheel – full standee scale (1.0) for tablet portrait ── */
   .standee-wheel-host {
     position: fixed;
-    left: clamp(-260px, -18vw, -120px);
+    left: clamp(-140px, -12vw, -40px);
     top: 42%;
     transform: translateY(-50%) scale(0.78);
     transform-origin: left center;
@@ -1864,9 +1864,9 @@
     transform: none !important;
     width: 100vw !important;
     max-width: 100vw !important;
-    height: auto !important;
-    min-height: 32vh !important;
-    max-height: 40vh !important;
+    height: 36vh !important;
+    min-height: 36vh !important;
+    max-height: 36vh !important;
     border-radius: 24px 24px 0 0 !important;
     z-index: 50 !important;
     background:
@@ -1885,6 +1885,16 @@
 
   .chatbot-container {
     padding: 14px 24px;
+    height: calc(100% - 70px);
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .chat-history {
+    min-height: 0;
+    overflow-y: auto !important;
   }
 
   .message {
@@ -2236,7 +2246,7 @@
   /* ── Nav Wheel – landscape: left edge visible, scale 0.78 ── */
   .standee-wheel-host {
     position: fixed;
-    left: clamp(-140px, -8vw, -40px);
+    left: clamp(-70px, -4vw, 0px);
     top: 46%;
     transform: translateY(-50%) scale(0.66);
     transform-origin: left center;
