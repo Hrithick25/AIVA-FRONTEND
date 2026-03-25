@@ -51,7 +51,7 @@ function AvatarBase({ scene, actions, groupRef, facePos }) {
 
     const isTablet = isTabletPortrait || isTabletLandscape;
 
-    const targetHeight = isTabLarge ? 2.58 : (isTablet ? (isTabletLandscape ? 2.0 : 2.15) : 1.75);
+    const targetHeight = isTabLarge ? 2.58 : (isTablet ? (isTabletLandscape ? 2.0 : 2.30) : 1.75);
     const scale = targetHeight / size.y;
 
     const innerOffset = new THREE.Vector3(-center.x, -bbox.min.y, -center.z);
@@ -59,7 +59,7 @@ function AvatarBase({ scene, actions, groupRef, facePos }) {
     const groupPosition = isTabLarge
       ? [0, -1.6, 0.15]
       : (isTablet
-        ? (isTabletLandscape ? [0, -0.95, 0.15] : [0, -1.15, 0.15])
+        ? (isTabletLandscape ? [0, -0.95, 0.15] : [0, -1.25, 0.15])
         : [0, -0.85, 0.15]);
     const groupRotation = [0, 0, 0];
 
