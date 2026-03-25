@@ -311,12 +311,8 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [audioVolume, setAudioVolume] = useState(0);
 
-  // ─── New state: language, request counter, limit ───
+  // ─── Language state ───
   const [language, setLanguage] = useState('en');
-  const [remainingRequests, setRemainingRequests] = useState(100);
-  const [totalRequests, setTotalRequests] = useState(100);
-  const [limitReached, setLimitReached] = useState(false);
-  const [showLimitOverlay, setShowLimitOverlay] = useState(false);
 
   const wsRef = useRef(null);
   const wsReadyRef = useRef(false);
@@ -325,6 +321,8 @@ function App() {
   const analyserRef = useRef(null);
   const volumeRafRef = useRef(null);
   const currentSourceRef = useRef(null);
+  // Abort token: incremented every time we stop audio; old chains check this and bail
+  const playbackGenRef = useRef(0);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -332,6 +330,9 @@ function App() {
   // Buffer for incoming binary audio stream chunks
   const streamingAudioChunksRef = useRef([]);
   const isStreamingAudioRef = useRef(false);
+  // Queue of ArrayBuffers waiting to be played sequentially
+  const audioQueueRef = useRef([]);
+  const isPlayingRef = useRef(false);
 
   useEffect(() => {
     isCompactRef.current = isCompactLayout;
@@ -373,22 +374,6 @@ function App() {
           const data = JSON.parse(evt.data);
           const t = data?.type;
 
-          // ─── Request counter updates ───
-          if (t === 'request_status') {
-            setRemainingRequests(data.remaining ?? 0);
-            setTotalRequests(data.total ?? 100);
-            if (data.remaining <= 0) setLimitReached(true);
-            return;
-          }
-
-          if (t === 'limit_reached') {
-            setLimitReached(true);
-            setRemainingRequests(0);
-            setShowLimitOverlay(true);
-            setIsProcessing(false);
-            return;
-          }
-
           if (t === 'streaming_status') {
             if (data?.input_text) setTranscript(data.input_text);
             return;
@@ -412,7 +397,7 @@ function App() {
 
           if (t === 'audio_stream_end') {
             isStreamingAudioRef.current = false;
-            // Merge all binary chunks and play
+            // Merge all binary chunks and enqueue for playback
             const chunks = streamingAudioChunksRef.current;
             if (chunks.length > 0) {
               const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
@@ -423,9 +408,11 @@ function App() {
                 offset += c.length;
               }
               streamingAudioChunksRef.current = [];
-              await playAudioBuffer(merged.buffer);
+              // enqueue — playback will call setIsProcessing(false) when done
+              enqueueAudio(merged.buffer);
+            } else {
+              setIsProcessing(false);
             }
-            setIsProcessing(false);
             return;
           }
 
@@ -513,6 +500,23 @@ function App() {
     }
   }, [messages, transcript]);
 
+  // ─── Stop any actively playing TTS audio ───
+  const stopCurrentAudio = () => {
+    // Bump generation so any in-flight playback chain self-terminates
+    playbackGenRef.current += 1;
+    if (currentSourceRef.current) {
+      try { currentSourceRef.current.stop(); } catch (_) {}
+      currentSourceRef.current = null;
+    }
+    audioQueueRef.current = [];
+    isPlayingRef.current = false;
+    streamingAudioChunksRef.current = [];
+    isStreamingAudioRef.current = false;
+    setIsSpeaking(false);
+    setAudioVolume(0);
+    stopVolumeLoop();
+  };
+
   const toggleRecording = async () => {
     if (isRecording) {
       // Stop recording
@@ -522,6 +526,9 @@ function App() {
       }
       return;
     }
+
+    // Stop any TTS that is currently playing before starting mic
+    stopCurrentAudio();
 
     // Start recording
     try {
@@ -639,7 +646,7 @@ function App() {
       }
       const rms = Math.sqrt(sum / data.length);
       // Use sqrt curve to boost quiet speech, higher multiplier for visible lip sync
-      const boosted = Math.sqrt(rms) * 2.2;
+      const boosted = Math.sqrt(rms) * 3.2;  // was 2.2 — more visible lip movement
       setAudioVolume(Math.min(1, boosted));
       volumeRafRef.current = requestAnimationFrame(tick);
     };
@@ -647,18 +654,45 @@ function App() {
     volumeRafRef.current = requestAnimationFrame(tick);
   };
 
-  const playAudioBuffer = async (arrayBuffer) => {
+  // ─── Audio queue: plays buffers one-by-one, never cutting off mid-sentence ───
+  const enqueueAudio = (arrayBuffer) => {
+    audioQueueRef.current.push(arrayBuffer);
+    if (!isPlayingRef.current) {
+      _playNextInQueue(playbackGenRef.current);
+    }
+  };
+
+  const _playNextInQueue = async (gen) => {
+    // Bail out if a newer playback generation has started (audio was stopped)
+    if (gen !== playbackGenRef.current) return;
+
+    if (audioQueueRef.current.length === 0) {
+      isPlayingRef.current = false;
+      setIsSpeaking(false);
+      setAudioVolume(0);
+      stopVolumeLoop();
+      setIsProcessing(false);
+      return;
+    }
+
+    isPlayingRef.current = true;
+    const arrayBuffer = audioQueueRef.current.shift();
+    await _playBufferNow(arrayBuffer, gen);
+  };
+
+  const _playBufferNow = async (arrayBuffer, gen) => {
+    // Bail if audio was interrupted
+    if (gen !== playbackGenRef.current) return;
+
     await ensureAudioContext();
 
     try {
-      if (currentSourceRef.current) {
-        try { currentSourceRef.current.stop(); } catch (e) { /* ignore */ }
-        currentSourceRef.current = null;
-      }
-
       const ctx = audioContextRef.current;
       const analyser = analyserRef.current;
       const audioBuffer = await ctx.decodeAudioData(arrayBuffer.slice(0));
+
+      // Bail again after async decode — user may have pressed mic
+      if (gen !== playbackGenRef.current) return;
 
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
@@ -669,28 +703,32 @@ function App() {
         source.connect(ctx.destination);
       }
 
-      source.onended = () => {
-        setIsSpeaking(false);
-        setAudioVolume(0);
-        stopVolumeLoop();
-        if (currentSourceRef.current === source) {
-          currentSourceRef.current = null;
-        }
-      };
-
       setIsSpeaking(true);
       startVolumeLoop();
-      source.start(0);
+
+      await new Promise((resolve) => {
+        source.onended = () => {
+          if (currentSourceRef.current === source) {
+            currentSourceRef.current = null;
+          }
+          resolve();
+        };
+        source.start(0);
+      });
     } catch (e) {
       console.error('[AUDIO] playback failed', e);
-      setIsSpeaking(false);
-      setAudioVolume(0);
-      stopVolumeLoop();
     }
+
+    // Only continue chain if still in the same generation
+    _playNextInQueue(gen);
+  };
+
+  const playAudioBuffer = async (arrayBuffer) => {
+    enqueueAudio(arrayBuffer);
   };
 
   const playAudioBase64 = async (audioBase64) => {
-    await playAudioBuffer(base64ToArrayBuffer(audioBase64));
+    enqueueAudio(base64ToArrayBuffer(audioBase64));
   };
 
   const sendQuickAction = (action) => {
@@ -698,15 +736,13 @@ function App() {
   };
 
   const getMicStatusText = () => {
-    if (limitReached) return "Limit Reached";
     if (isRecording) return "Listening...";
     if (isProcessing) return "Processing...";
     if (isSpeaking) return "Speaking...";
     return "Tap to Speak";
   };
 
-  const requestPercent = totalRequests > 0 ? (remainingRequests / totalRequests) * 100 : 0;
-  const isLow = remainingRequests <= 20;
+
 
 
 
@@ -876,7 +912,7 @@ function App() {
                 type="button"
                 className="voice-action-btn"
                 onClick={toggleRecording}
-                disabled={isProcessing || limitReached}
+                disabled={isProcessing}
                 title={isRecording ? "Stop" : "Start"}
               >
                 {isRecording ? 'Stop' : 'Start'}
@@ -924,17 +960,6 @@ function App() {
       <div className="ui-section">
         <div className="chatbot-header">
           <h2 className="chatbot-title" ref={chatbotTitleRef}>AIVA Chatbot</h2>
-          {/* Request Counter */}
-          <div className="request-counter">
-            <span className="request-counter-label">Requests</span>
-            <div className="request-counter-bar-wrapper">
-              <div
-                className={`request-counter-bar ${isLow ? 'low' : ''}`}
-                style={{ width: `${requestPercent}%` }}
-              />
-            </div>
-            <span className="request-counter-text">{remainingRequests} / {totalRequests}</span>
-          </div>
         </div>
 
         <div className="chatbot-container">
@@ -989,8 +1014,7 @@ function App() {
                 <button
                   className={`orb-mic-button compact-mic ${isRecording ? 'recording' : ''} ${isSpeaking ? 'speaking' : ''}`}
                   onClick={toggleRecording}
-                  disabled={limitReached}
-                  title={limitReached ? "Daily limit reached" : isRecording ? "Tap to Stop" : "Tap to Speak"}
+                  title={isRecording ? "Tap to Stop" : "Tap to Speak"}
                 >
                   {isRecording ? (
                     <div className="stop-icon" />
@@ -1005,7 +1029,7 @@ function App() {
                 <button
                   className="send-orb-button"
                   onClick={() => handleSend(null)}
-                  disabled={(!transcript.trim() && !isRecording) || isProcessing || limitReached}
+                  disabled={(!transcript.trim() && !isRecording) || isProcessing}
                 >
                   Send
                 </button>
@@ -1018,7 +1042,7 @@ function App() {
                 <button
                   className="send-orb-button standee-send-btn"
                   onClick={() => handleSend(null)}
-                  disabled={(!transcript.trim() && !isRecording) || isProcessing || limitReached}
+                  disabled={(!transcript.trim() && !isRecording) || isProcessing}
                 >
                   Send
                 </button>
@@ -1034,8 +1058,7 @@ function App() {
               <button
                 className={`orb-mic-button ${isRecording ? 'recording' : ''} ${isSpeaking ? 'speaking' : ''}`}
                 onClick={toggleRecording}
-                disabled={limitReached}
-                title={limitReached ? "Daily limit reached" : isRecording ? "Tap to Stop" : "Tap to Speak"}
+                title={isRecording ? "Tap to Stop" : "Tap to Speak"}
               >
                 {isRecording ? (
                   <div className="stop-icon" />
@@ -1053,7 +1076,7 @@ function App() {
             <button
               className="send-orb-button"
               onClick={() => handleSend(null)}
-              disabled={(!transcript.trim() && !isRecording) || isProcessing || limitReached}
+              disabled={(!transcript.trim() && !isRecording) || isProcessing}
             >
               Send
             </button>
@@ -1075,25 +1098,7 @@ function App() {
         />
       )}
 
-      {/* Limit Reached Overlay */}
-      {showLimitOverlay && (
-        <div className="limit-reached-overlay">
-          <div className="limit-reached-card">
-            <div className="limit-reached-icon">⚠️</div>
-            <div className="limit-reached-title">Daily Request Limit Reached</div>
-            <div className="limit-reached-msg">
-              You have used all {totalRequests} requests for today.<br />
-              Please try again tomorrow.
-            </div>
-            <button
-              className="limit-reached-dismiss"
-              onClick={() => setShowLimitOverlay(false)}
-            >
-              Dismiss
-            </button>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }

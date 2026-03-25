@@ -30,15 +30,24 @@ function AvatarBase({ scene, actions, groupRef, facePos }) {
       return null;
     }
 
-    const mqTab = window.matchMedia('(min-width: 1024px) and (max-width: 1250px) and (min-height: 1366px) and (max-height: 1950px)');
-    const isTabExact = mqTab.matches;
+    const mqTabLarge = window.matchMedia(
+      '(min-width: 1024px) and (max-width: 1250px) and (min-height: 1366px) and (max-height: 1950px)'
+    );
+    const mqTabletPortrait = window.matchMedia(
+      '(hover: none) and (pointer: coarse) and (min-width: 700px) and (max-width: 950px) and (min-height: 900px) and (orientation: portrait)'
+    );
 
-    const targetHeight = isTabExact ? 2.3 : 1.55;
+    const isTabLarge = mqTabLarge.matches;
+    const isTabletPortrait = mqTabletPortrait.matches;
+
+    const targetHeight = isTabLarge ? 2.3 : (isTabletPortrait ? 2.05 : 1.55);
     const scale = targetHeight / size.y;
 
     const innerOffset = new THREE.Vector3(-center.x, -bbox.min.y, -center.z);
 
-    const groupPosition = isTabExact ? [0, -1.35, 0.15] : [0, -0.68, 0.15];
+    const groupPosition = isTabLarge
+      ? [0, -1.35, 0.15]
+      : (isTabletPortrait ? [0, -1.15, 0.15] : [0, -0.68, 0.15]);
     const groupRotation = [0, 0, 0];
 
     return {
@@ -58,7 +67,7 @@ function AvatarBase({ scene, actions, groupRef, facePos }) {
     const targetY = clamp(facePos.x * maxYaw, -maxYaw, maxYaw);
     const targetX = clamp(-facePos.y * maxPitch, -maxPitch, maxPitch);
 
-    const lerpFactor = 0.06;
+    const lerpFactor = 0.13;  // increased from 0.06 for faster face tracking
     groupRef.current.rotation.y = THREE.MathUtils.lerp(
       groupRef.current.rotation.y,
       targetY,
@@ -246,7 +255,7 @@ export function Avatar(props) {
     for (const t of targets) {
       const infl = t.mesh.morphTargetInfluences;
       if (!infl || typeof infl[t.index] !== 'number') continue;
-      infl[t.index] = THREE.MathUtils.lerp(infl[t.index], target, 0.25);
+      infl[t.index] = THREE.MathUtils.lerp(infl[t.index], target, 0.45);  // was 0.25
     }
 
     const smileTargets = smileTargetsRef.current;
