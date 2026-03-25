@@ -39,9 +39,14 @@ function AvatarBase({ scene, actions, groupRef, facePos }) {
     const mqTabletLandscape = window.matchMedia(
       '(hover: none) and (pointer: coarse) and (min-width: 900px) and (max-width: 2200px) and (min-height: 600px) and (orientation: landscape)'
     );
+    // Dimension-only query: catches phones in "desktop mode" (no touch hints) with tall portrait viewports
+    // Matches 1080x1920, 1200x2000 etc even without hover:none/pointer:coarse
+    const mqDesktopModePortrait = window.matchMedia(
+      '(min-width: 700px) and (max-width: 1400px) and (min-height: 1400px) and (orientation: portrait)'
+    );
 
     const isTabLarge = mqTabLarge.matches;
-    const isTabletPortrait = mqTabletPortrait.matches;
+    const isTabletPortrait = mqTabletPortrait.matches || mqDesktopModePortrait.matches;
     const isTabletLandscape = mqTabletLandscape.matches;
 
     const isTablet = isTabletPortrait || isTabletLandscape;
