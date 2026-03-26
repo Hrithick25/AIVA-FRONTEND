@@ -331,7 +331,7 @@ html {
    .standee-overlay .standee-wheel-host {
      transform: translateY(-50%) scale(0.42) !important;
      left: clamp(-90px, -8vw, 0px) !important;
-     top: 46% !important;
+     top: 44% !important;
    }
 
    .standee-interaction-bar {
