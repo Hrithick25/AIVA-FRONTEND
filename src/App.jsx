@@ -179,12 +179,13 @@ function CameraFix() {
     const isTabP800x1165 = mqTabP800x1165.matches;
     const isTabL = mqTabletLandscape.matches;
 
-    const z = isTabP800x1165 ? 2.05 : (isTabP ? 1.85 : (isTabL ? 2.05 : 2.7));
-    const fov = isTabP800x1165 ? 30 : (isTabP ? 28 : (isTabL ? 30 : 36));
+    const z = isTabP800x1165 ? 2.7 : (isTabP ? 1.85 : (isTabL ? 2.05 : 2.7));
+    const fov = isTabP800x1165 ? 32 : (isTabP ? 28 : (isTabL ? 30 : 36));
+    const y = isTabP800x1165 ? 0.52 : 0.42;
 
     camera.fov = fov;
-    camera.position.set(0, 0.42, z);
-    camera.lookAt(0, 0.42, 0.12);
+    camera.position.set(0, y, z);
+    camera.lookAt(0, y, 0.12);
     camera.updateProjectionMatrix();
   }, [camera]);
 
