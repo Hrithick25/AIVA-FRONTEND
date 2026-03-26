@@ -71,6 +71,7 @@ function useStandeeLayout() {
     const mqTabP3 = window.matchMedia('(min-width: 780px) and (max-width: 830px) and (min-height: 1240px) and (max-height: 1330px) and (orientation: portrait)');
     const mqTabP4 = window.matchMedia('(min-width: 990px) and (max-width: 1060px) and (min-height: 1330px) and (max-height: 1420px) and (orientation: portrait)');
     const mqTabP5 = window.matchMedia('(min-width: 1150px) and (max-width: 1250px) and (min-height: 1880px) and (max-height: 2060px) and (orientation: portrait)');
+    const mqTabP800x1165 = window.matchMedia('(min-width: 760px) and (max-width: 900px) and (min-height: 1050px) and (max-height: 1300px) and (orientation: portrait)');
     // Tablet landscape
     const mqTabL1 = window.matchMedia('(min-width: 1000px) and (max-width: 1100px) and (min-height: 740px) and (max-height: 820px) and (orientation: landscape)');
     const mqTabL2 = window.matchMedia('(min-width: 1140px) and (max-width: 1220px) and (min-height: 790px) and (max-height: 860px) and (orientation: landscape)');
@@ -94,6 +95,7 @@ function useStandeeLayout() {
       mqTabP3,
       mqTabP4,
       mqTabP5,
+      mqTabP800x1165,
       mqTabL1,
       mqTabL2,
       mqTabL3,
@@ -166,15 +168,19 @@ function CameraFix() {
     const mqTabletPortrait = window.matchMedia(
       '(hover: none) and (pointer: coarse) and (min-width: 700px) and (max-width: 1100px) and (min-height: 900px) and (orientation: portrait)'
     );
+    const mqTabP800x1165 = window.matchMedia(
+      '(min-width: 760px) and (max-width: 900px) and (min-height: 1050px) and (max-height: 1300px) and (orientation: portrait)'
+    );
     const mqTabletLandscape = window.matchMedia(
       '(hover: none) and (pointer: coarse) and (min-width: 900px) and (max-width: 1600px) and (min-height: 600px) and (orientation: landscape)'
     );
 
     const isTabP = mqTabletPortrait.matches;
+    const isTabP800x1165 = mqTabP800x1165.matches;
     const isTabL = mqTabletLandscape.matches;
 
-    const z = isTabP ? 1.85 : (isTabL ? 2.05 : 2.7);
-    const fov = isTabP ? 28 : (isTabL ? 30 : 36);
+    const z = isTabP800x1165 ? 2.05 : (isTabP ? 1.85 : (isTabL ? 2.05 : 2.7));
+    const fov = isTabP800x1165 ? 30 : (isTabP ? 28 : (isTabL ? 30 : 36));
 
     camera.fov = fov;
     camera.position.set(0, 0.42, z);
@@ -311,7 +317,7 @@ function App() {
     const mqKioskPortrait = window.matchMedia('(max-width: 900px) and (min-height: 900px)');
     const mqHdPortrait = window.matchMedia('(min-width: 901px) and (max-width: 1100px) and (min-height: 1600px)');
     const isCompactInitial = Boolean(mqMobile.matches || mqKioskPortrait.matches || mqHdPortrait.matches);
-    if (isCompactInitial) return [];
+    // Removed early return so initial greeting is always shown
     return [
       {
         role: 'ai',
@@ -574,7 +580,7 @@ function App() {
           const arrayBuffer = await audioBlob.arrayBuffer();
           const audioBase64 = arrayBufferToBase64(arrayBuffer);
           sendWsJson({
-            type: 'audio_base64_streaming',
+            type: 'audio_base64',
             audio_data: audioBase64,
             language: language,
             input_language: language,
