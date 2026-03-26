@@ -72,6 +72,9 @@ function useStandeeLayout() {
     const mqTabP4 = window.matchMedia('(min-width: 990px) and (max-width: 1060px) and (min-height: 1330px) and (max-height: 1420px) and (orientation: portrait)');
     const mqTabP5 = window.matchMedia('(min-width: 1150px) and (max-width: 1250px) and (min-height: 1880px) and (max-height: 2060px) and (orientation: portrait)');
     const mqTabP800x1165 = window.matchMedia('(min-width: 760px) and (max-width: 900px) and (min-height: 1050px) and (max-height: 1300px) and (orientation: portrait)');
+    const mqSmallTabP684x964 = window.matchMedia(
+      '(min-width: 650px) and (max-width: 720px) and (min-height: 900px) and (max-height: 1050px) and (orientation: portrait)'
+    );
     // Tablet landscape
     const mqTabL1 = window.matchMedia('(min-width: 1000px) and (max-width: 1100px) and (min-height: 740px) and (max-height: 820px) and (orientation: landscape)');
     const mqTabL2 = window.matchMedia('(min-width: 1140px) and (max-width: 1220px) and (min-height: 790px) and (max-height: 860px) and (orientation: landscape)');
@@ -96,6 +99,7 @@ function useStandeeLayout() {
       mqTabP4,
       mqTabP5,
       mqTabP800x1165,
+      mqSmallTabP684x964,
       mqTabL1,
       mqTabL2,
       mqTabL3,
@@ -174,6 +178,9 @@ function CameraFix() {
     const mqTabP800x1110to1200 = window.matchMedia(
       '(min-width: 760px) and (max-width: 900px) and (min-height: 1110px) and (max-height: 1200px) and (orientation: portrait)'
     );
+    const mqSmallTabP684x964 = window.matchMedia(
+      '(min-width: 650px) and (max-width: 720px) and (min-height: 900px) and (max-height: 1050px) and (orientation: portrait)'
+    );
     const mqTabletLandscape = window.matchMedia(
       '(hover: none) and (pointer: coarse) and (min-width: 900px) and (max-width: 1600px) and (min-height: 600px) and (orientation: landscape)'
     );
@@ -181,15 +188,16 @@ function CameraFix() {
     const isTabP = mqTabletPortrait.matches;
     const isTabP800x1165 = mqTabP800x1165.matches;
     const isTabP800x1110to1200 = mqTabP800x1110to1200.matches;
+    const isSmallTabP684x964 = mqSmallTabP684x964.matches;
     const isTabL = mqTabletLandscape.matches;
 
     const z = isTabP800x1110to1200
       ? 2.6
-      : (isTabP800x1165 ? 2.7 : (isTabP ? 1.85 : (isTabL ? 2.05 : 2.7)));
+      : (isSmallTabP684x964 ? 2.9 : (isTabP800x1165 ? 2.7 : (isTabP ? 1.85 : (isTabL ? 2.05 : 2.7))));
     const fov = isTabP800x1110to1200
       ? 31
-      : (isTabP800x1165 ? 32 : (isTabP ? 28 : (isTabL ? 30 : 36)));
-    const y = isTabP800x1110to1200 ? 0.48 : (isTabP800x1165 ? 0.52 : 0.42);
+      : (isSmallTabP684x964 ? 34 : (isTabP800x1165 ? 32 : (isTabP ? 28 : (isTabL ? 30 : 36))));
+    const y = isTabP800x1110to1200 ? 0.48 : (isSmallTabP684x964 ? 0.46 : (isTabP800x1165 ? 0.52 : 0.42));
 
     camera.fov = fov;
     camera.position.set(0, y, z);
