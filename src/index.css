@@ -252,7 +252,7 @@ html {
      flex-direction: column;
      align-items: center;
      position: fixed;
-     top: 72px !important;
+     top: 52px !important;
      left: 50%;
      transform: translateX(-50%);
      z-index: 14;
@@ -288,7 +288,7 @@ html {
 
  @media (min-width: 760px) and (max-width: 900px) and (min-height: 1110px) and (max-height: 1200px) and (orientation: portrait) {
    .tab-advanced-title {
-     top: 70px !important;
+     top: 88px !important;
    }
 
    .tab-title-small {
@@ -303,7 +303,7 @@ html {
    }
 
    .avatar-container {
-     top: 44% !important;
+     top: 42% !important;
      width: min(420px, 88vw) !important;
      height: min(650px, 64vh) !important;
    }
@@ -313,6 +313,12 @@ html {
      transform: translateY(-50%) scale(0.56) !important;
      left: clamp(-90px, -7vw, 0px) !important;
      top: 44% !important;
+   }
+ }
+
+ @media (min-width: 760px) and (max-width: 900px) and (min-height: 1110px) and (max-height: 1200px) {
+   .tab-advanced-title {
+     top: 88px !important;
    }
  }
 
