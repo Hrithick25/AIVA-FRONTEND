@@ -2573,11 +2573,11 @@
       right: 20px;
     }
     .tab-title-main {
-      font-size: 70px !important;
-      letter-spacing: 6px;
+      font-size: 78px !important;
+      letter-spacing: 5px;
     }
     .tab-title-small {
-      font-size: 14px !important;
+      font-size: 15px !important;
       letter-spacing: 5px;
     }
   }
@@ -2604,27 +2604,57 @@
     }
 
     .tab-title-main {
+      font-size: 78px !important;
+      margin-top: -8px;
+      letter-spacing: 5px;
       text-shadow:
         0 0 18px rgba(127, 92, 255, 0.7),
         0 0 44px rgba(0, 240, 255, 0.22);
     }
 
     .tab-title-small {
+      font-size: 15px !important;
+      letter-spacing: 5px !important;
       text-shadow: 0 0 18px rgba(127, 92, 255, 0.35);
     }
 
     .avatar-container {
-      top: 47% !important;
-    }
-
-    .tab-title-main {
-      font-size: 60px !important;
-      margin-top: -22px;
-      letter-spacing: 5px;
+      top: 43% !important;
+      width: 70vw !important;
+      max-width: 480px !important;
+      height: 65vh !important;
     }
 
     .tab-advanced-title {
-      top: 118px !important;
+      top: 68px !important;
+    }
+  }
+
+  @media (min-width: 760px) and (max-width: 900px) and (min-height: 1110px) and (max-height: 1200px) and (orientation: portrait) {
+    .standee-wheel-host {
+      top: 45%;
+      transform: translateY(-50%) scale(0.64);
+    }
+
+    .tab-title-main {
+      font-size: 74px !important;
+      margin-top: -10px;
+      letter-spacing: 5px;
+    }
+
+    .tab-title-small {
+      font-size: 14px !important;
+      letter-spacing: 5px !important;
+    }
+
+    .avatar-container {
+      top: 45% !important;
+      width: min(420px, 88vw) !important;
+      height: min(650px, 64vh) !important;
+    }
+
+    .tab-advanced-title {
+      top: 54px !important;
     }
   }
 }

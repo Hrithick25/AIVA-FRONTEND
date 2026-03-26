@@ -42,6 +42,9 @@ function AvatarBase({ scene, actions, groupRef, facePos }) {
     const mqTabP800x1165 = window.matchMedia(
       '(min-width: 760px) and (max-width: 900px) and (min-height: 1050px) and (max-height: 1300px) and (orientation: portrait)'
     );
+    const mqTabP800x1110to1200 = window.matchMedia(
+      '(min-width: 760px) and (max-width: 900px) and (min-height: 1110px) and (max-height: 1200px) and (orientation: portrait)'
+    );
     // Dimension-only query: catches phones in "desktop mode" (no touch hints) with tall portrait viewports
     // Matches 1080x1920, 1200x2000 etc even without hover:none/pointer:coarse
     const mqDesktopModePortrait = window.matchMedia(
@@ -53,10 +56,13 @@ function AvatarBase({ scene, actions, groupRef, facePos }) {
     const isTabletLandscape = mqTabletLandscape.matches;
 
     const isTabP800x1165 = mqTabP800x1165.matches;
+    const isTabP800x1110to1200 = mqTabP800x1110to1200.matches;
 
     const isTablet = isTabletPortrait || isTabletLandscape;
 
-    const targetHeight = isTabLarge ? 2.20 : (isTabP800x1165 ? 1.70 : (isTablet ? (isTabletLandscape ? 2.0 : 2.05) : 1.75));
+    const targetHeight = isTabLarge
+      ? 2.20
+      : (isTabP800x1110to1200 ? 1.62 : (isTabP800x1165 ? 1.70 : (isTablet ? (isTabletLandscape ? 2.0 : 2.05) : 1.75)));
     const scale = targetHeight / size.y;
 
     const innerOffset = new THREE.Vector3(-center.x, -bbox.min.y, -center.z);
@@ -64,7 +70,9 @@ function AvatarBase({ scene, actions, groupRef, facePos }) {
     const groupPosition = isTabLarge
       ? [0, -1.15, 0.15]
       : (isTablet
-        ? (isTabletLandscape ? [0, -0.95, 0.15] : (isTabP800x1165 ? [0, -0.88, 0.15] : [0, -1.05, 0.15]))
+        ? (isTabletLandscape
+          ? [0, -0.95, 0.15]
+          : (isTabP800x1110to1200 ? [0, -0.78, 0.15] : (isTabP800x1165 ? [0, -0.88, 0.15] : [0, -1.05, 0.15])))
         : [0, -0.85, 0.15]);
     const groupRotation = [0, 0, 0];
 
