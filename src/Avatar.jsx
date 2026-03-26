@@ -84,7 +84,7 @@ function AvatarBase({ scene, actions, groupRef, facePos }) {
             ? [0, -0.70, 0.15]
             : (isTabP800x1165
               ? [0, -0.88, 0.15]
-              : (isSmallTabP684x964 ? [0, -0.92, 0.15] : [0, -1.05, 0.15]))))
+              : (isSmallTabP684x964 ? [0, -0.86, 0.15] : [0, -1.05, 0.15]))))
         : [0, -0.85, 0.15]);
     const groupRotation = [0, 0, 0];
 

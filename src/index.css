@@ -329,9 +329,32 @@ html {
 
    .standee-wheel-host,
    .standee-overlay .standee-wheel-host {
-     transform: translateY(-50%) scale(0.56) !important;
+     transform: translateY(-50%) scale(0.42) !important;
      left: clamp(-90px, -8vw, 0px) !important;
      top: 46% !important;
+   }
+
+   .standee-interaction-bar {
+     transform: translateY(-50%) scale(0.80) !important;
+     transform-origin: right center !important;
+   }
+
+   .standee-voice-btn,
+   .standee-chat-btn {
+     width: 58px !important;
+     height: 58px !important;
+   }
+
+   .standee-voice-btn svg,
+   .standee-chat-btn svg {
+     width: 24px !important;
+     height: 24px !important;
+   }
+
+   .standee-voice-label,
+   .standee-chat-label {
+     font-size: 9px !important;
+     letter-spacing: 1.5px !important;
    }
 
    .ui-section {
